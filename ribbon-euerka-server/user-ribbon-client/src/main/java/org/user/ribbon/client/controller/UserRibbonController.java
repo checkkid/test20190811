@@ -1,5 +1,7 @@
 package org.user.ribbon.client.controller;
 
+import java.io.IOException;
+
 import org.apache.logging.log4j.CloseableThreadContext.Instance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +26,7 @@ public class UserRibbonController {
 	
 	
 	@GetMapping("")
-	public String index() {
+	public String index() throws IOException{
 		
 		User user = new User();
 		user.setId(2L);
@@ -32,13 +34,13 @@ public class UserRibbonController {
 		
 		ServiceInstance serviceInstance = loadBalancerClient.choose(providerservicename);
 		
-		loadBalancerClient.execute(providerservicename, serviceInstance, (Instance ->{
+		return loadBalancerClient.execute(providerservicename, serviceInstance, (Instance ->{
 			String host =Instance.getHost();
 			int port = Instance.getPort();
 			String url = "http://"+host+":"+port+"/user/save";
 			RestTemplate restTemplate = new RestTemplate();
 			
-			restTemplate.postForObject(url, user,String.class);
+			return restTemplate.postForObject(url, user,String.class);
 			
 			
 			
